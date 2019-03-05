@@ -1,0 +1,62 @@
+//un
+matt.mckinley@salesforce.com	
+//pw
+El2255711380
+
+//help
+sfdx force --help
+sfdx force:doc:commands:list
+//list orgs
+sfdx force:org:list
+//delete scratch orgs
+sfdx force:org:delete -u test-kvtb6eeupvrb@example.com
+sfdx force:org:delete -u test-dyk32h60ip0t@example.com
+sfdx force:org:delete -u test-eoih5u70s5sv@example.com 
+//set default devhub username
+sfdx force:auth:web:login --setdefaultdevhubusername --setalias DH
+//login examples w/devhub org default already set
+sfdx force:auth:web:login -d -a MyTP
+sfdx force:org:open
+sfdx force:org:open -u FullSandbox
+sfdx force:auth:web:login -r https://test.salesforce.com -a FullSandbox
+//Create scratch org
+sfdx force:org:create -s -f config/project-scratch-def.json -a dreamhouse-org
+//deploy
+sfdx force:source:push
+sfdx force:source:push --targetusername my-other-scratch-org
+//assign permission set
+sfdx force:user:permset:assign -n Dreamhouse
+//import data
+sfdx force:data:tree:import --plan data/sample-data-plan.json
+//git from existing repo
+git init
+git remote add origin <github ssh url>
+git add -A
+git commit -m "Add custom object and permset"
+git push origin master
+//pulling data
+sfdx force:data:tree:export -q "SELECT Name, Location__Latitude__s, Location__Longitude__s FROM Account WHERE Location__Latitude__s != NULL AND Location__Longitude__s != NULL" -d ./data
+sfdx force:data:tree:import --sobjecttreefiles data/Account.json
+//unlocked packaging commands
+////create
+sfdx force:package:create --name th-dreamhouse --description "My DreamHouse Package" --packagetype Unlocked \
+--path force-app --nonamespace --targetdevhubusername MyTP
+////create scratch
+sfdx force:org:create --definitionfile config/project-scratch-def.json \
+--durationdays 30 --setalias MyScratchOrg -v MyTP
+////set default username
+sfdx force:config:set defaultusername=matt.ian.mckinley@playful-panda-issici.com
+////create version
+sfdx force:package:version:create -p th-dreamhouse -k test1234 --wait 10 -v MyTP
+////install version
+sfdx force:package:install --wait 10 --publishwait 10 --package th-dreamhouse@0.1.0-2 \
+-k test1234 -r -u MyScratchOrg
+////open package version
+sfdx force:org:open -u MyScratchOrg
+////release beta
+sfdx force:package:version:promote -p th-dreamhouse@0.1.0-2 -v MyTP
+////install in any org (non-source controlled)
+sfdx force:package:install --wait 10 --publishwait 10 --package th-dreamhouse@0.1.0-2 \
+-k test1234 -r -u MyTP
+////open Trailhead
+sfdx force:org:open -u MyTP

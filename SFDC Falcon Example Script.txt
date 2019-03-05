@@ -1,0 +1,16 @@
+SFDC Falcon Example Script
+1) Install plugin 
+sfdx plugins:install sfdx-falcon
+2) create dirs
+cd ~
+mkdir ADK-Projects
+cd ADK-Projects
+3) Create a repository
+https://github.com/mattaGIT/sfdx-falcon.git
+4) Run the generator
+sfdx falcon:adk:create
+5) Build
+cd MIM
+sfdx falcon:adk:install
+6)push upstream
+git push --set-upstream origin master

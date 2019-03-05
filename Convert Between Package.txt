@@ -1,0 +1,52 @@
+Convert Between Package 1.0 and 2.0 
+cd ~/vsCode2/
+1) Set up the project's scratch org
+1.1) Create Project/Scratch org
+sfdx force:project:create -n MutualFundExplorer
+cd MutualFundExplorer
+sfdx force:org:create -f config/project-scratch-def.json -a TempUnmanaged
+1.2) View result
+sfdx force:org:display -u TempUnmanaged
+1.3) Generate Password
+sfdx force:user:password:generate -u TempUnmanaged
+1.4) Look at the Password
+sfdx force:org:display -u TempUnmanaged
+
+2) Use this info to install the package
+2.1) Install package
+https://login.salesforce.com/packaging/installPackage.apexp?p0=04t46000001DnYm
+use domain (instance url), usnerame and password from 1.4
+
+3) Create Permission set
+3.1)From Setup, enter Permission Sets in the Quick Find box, then select Permission Sets.
+3.2)Click New.
+3.3)For Label, enter DreamInvest.
+3.4)Click Save.
+3.5)Under Apps, click Assigned Apps | Edit.
+3.6)Under Available Apps, select DreamInvest (DreamInvest), then click Add to move it to Enabled Apps.
+3.7)Click Save.
+
+4) pull changes
+sfdx force:source:pull -u TempUnmanaged
+
+5) retrieve package source from metadata api and unzip
+sfdx force:mdapi:retrieve -s -r ./mdapipackage -p DreamInvest -u TempUnmanaged -w 10
+cd mdapipackage
+unzip unpackaged.zip -d .
+rm unpackaged.zip
+
+6) Convert to Package 2.0 Source Clean up 
+cd ..
+sfdx force:mdapi:convert -r mdapipackage/
+
+7) Optionally cleanup unused temp scratch org
+rm -rf mdapipackage
+sfdx force:org:delete -u TempUnmanaged
+
+8) Push to New Scratch Org
+8.1) Create Scratch org and push
+sfdx force:org:create -s -f config/project-scratch-def.json
+sfdx force:source:push
+8.2) Assign permissions set
+sfdx force:user:permset:assign -n DreamInvest 
+sfdx force:org:open
